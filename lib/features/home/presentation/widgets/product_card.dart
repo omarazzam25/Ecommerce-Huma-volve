@@ -1,19 +1,32 @@
+
+
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ecommerce_app_huma_volve/features/home/model/products_model.dart';
 import 'package:flutter/material.dart';
-import '../../../core/dummy_data.dart';
-import '../../../core/theme.dart';
-import '../../details/screens/product_details_screen.dart';
+
+
+import '../../../../core/theme.dart';
+import '../../../details/screens/product_details_screen.dart';
+import '../../domain/entites/products_entity.dart';
+
 
 class ProductCard extends StatelessWidget {
-  final ProductsModel productsModel;
+  final ProductsEntity productsModel;
 
-  const ProductCard({super.key, required this.productsModel});
+  const ProductCard({
+    super.key,
+    required this.productsModel,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = productsModel.images?.isNotEmpty == true
+        ? productsModel.images!.first
+        : null;
+
     return GestureDetector(
       onTap: () {
+        if (productsModel.id == null) return;
+
         Navigator.push(
           context,
           PageRouteBuilder(
@@ -22,8 +35,11 @@ class ProductCard extends StatelessWidget {
                 ProductDetailsScreen(productsModel: productsModel),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
           ),
         );
       },
@@ -53,20 +69,23 @@ class ProductCard extends StatelessWidget {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
-                      child: CachedNetworkImage(
-                        imageUrl: productsModel.images![0],
-                        imageBuilder: (context, imageProvider) => Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                            ),
+                      child: SizedBox.expand(
+                        child: imageUrl != null && imageUrl.isNotEmpty
+                            ? CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                          const Center(
+                            child: CircularProgressIndicator(),
                           ),
+                          errorWidget: (context, url, error) =>
+                          const Center(
+                            child: Icon(Icons.error),
+                          ),
+                        )
+                            : const Center(
+                          child: Icon(Icons.image_not_supported),
                         ),
-                        placeholder: (context, url) =>
-                            Center(child: CircularProgressIndicator()),
-                        errorWidget: (context, url, error) =>
-                            Center(child: Icon(Icons.error)),
                       ),
                     ),
                   ),
@@ -92,13 +111,13 @@ class ProductCard extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      productsModel.title!,
+                      productsModel.title ?? 'Unnamed product',
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
@@ -112,7 +131,7 @@ class ProductCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '\$${productsModel.price?.toStringAsFixed(2) ?? '0.00'}',
+                          '\$${(productsModel.price ?? 0).toStringAsFixed(2)}',
                           style: const TextStyle(
                             color: AppTheme.primary,
                             fontWeight: FontWeight.bold,

@@ -1,0 +1,77 @@
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
+
+import '../../../../core/error/failures.dart';
+import '../../domain/entites/category_entity.dart';
+import '../../domain/entites/products_entity.dart';
+import '../../domain/repository/home_repository.dart';
+import '../data_source/home_remote_data_source.dart';
+
+class HomeRepositoryImpl implements HomeRepository {
+  final HomeRemoteDataSource remoteDataSource;
+
+  HomeRepositoryImpl({
+    required this.remoteDataSource,
+  });
+
+  @override
+  Future<Either<Failures, List<ProductsEntity>>> getProducts() async {
+    try {
+      final products = await remoteDataSource.getProducts();
+
+      final productsEntities = products
+          .map((product) => product.toEntity())
+          .toList();
+
+      return Right(productsEntities);
+    } on DioException catch (error) {
+      return Left(ServerFailure.fromDioError(error));
+    } catch (error) {
+      return Left(
+        ServerFailure('Unexpected error: $error'),
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failures, List<ProductsEntity>>> getProductsByCategory(
+      int categoryId,
+      ) async {
+    try {
+      final products = await remoteDataSource.getProductsByCategory(
+        categoryId,
+      );
+
+      final productsEntities = products
+          .map((product) => product.toEntity())
+          .toList();
+
+      return Right(productsEntities);
+    } on DioException catch (error) {
+      return Left(ServerFailure.fromDioError(error));
+    } catch (error) {
+      return Left(
+        ServerFailure('Unexpected error: $error'),
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failures, List<CategoryEntity>>> getCategories() async {
+    try {
+      final categories = await remoteDataSource.getCategories();
+
+      final categoriesEntities = categories
+          .map((category) => category.toEntity())
+          .toList();
+
+      return Right(categoriesEntities);
+    } on DioException catch (error) {
+      return Left(ServerFailure.fromDioError(error));
+    } catch (error) {
+      return Left(
+        ServerFailure('Unexpected error: $error'),
+      );
+    }
+  }
+}

@@ -1,10 +1,10 @@
-import 'package:ecommerce_app_huma_volve/features/home/home_cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/dummy_data.dart';
-import '../../../core/theme.dart';
-
+import '../../../../core/di.dart';
+import '../../../../core/dummy_data.dart';
+import '../../../../core/theme.dart';
+import '../home_cubit/home_cubit.dart';
 import '../widgets/product_card.dart';
 import '../widgets/category_chip.dart';
 import '../widgets/product_card_skeleton.dart';
@@ -22,15 +22,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeCubit()
-        ..getProducst()
+      create: (context) => getIt<HomeCubit>()
+        ..getProducts()
         ..getCategories(),
       child: Scaffold(
         backgroundColor: AppTheme.background,
         body: SafeArea(
           child: CustomScrollView(
             slivers: [
-
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -87,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       const SizedBox(height: 32),
 
-
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -128,13 +126,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       const SizedBox(height: 32),
 
-
                       BlocBuilder<HomeCubit, HomeState>(
                         builder: (context, state) {
                           final categories = context
                               .read<HomeCubit>()
                               .categories;
-
+                          if (state is CategoryLoadingState) {
+                            return Center(child: CircularProgressIndicator());
+                          }
                           if (categories.isEmpty) {
                             return const SizedBox(height: 44);
                           }
@@ -207,15 +206,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
 
                     final products = context.read<HomeCubit>().products;
-
-                    if (products.isEmpty) {
-                      return const SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: Center(child: Text('No products found')),
-                        ),
-                      );
-                    }
 
                     return SliverGrid(
                       gridDelegate:
