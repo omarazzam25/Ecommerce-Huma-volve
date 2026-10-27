@@ -75,4 +75,19 @@ class HomeRepositoryImpl implements HomeRepository {
       );
     }
   }
+
+  @override
+  Future<Either<Failures, ProductsEntity>> getProductById(
+      int productId,
+      ) async {
+    try {
+      final product = await remoteDataSource.getProductById(productId);
+
+      return Right(product.toEntity());
+    } on DioException catch (e) {
+      return Left(ServerFailure.fromDioError(e));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
 }

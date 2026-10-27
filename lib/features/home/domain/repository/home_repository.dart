@@ -12,4 +12,8 @@ abstract class HomeRepository {
     required int offset,});
 
   Future<Either<Failures,List<ProductsEntity>>> getProducts({required int limit,required int offset,});
+
+  Future<Either<Failures, ProductsEntity>> getProductById(
+      int productId,
+      );
 }

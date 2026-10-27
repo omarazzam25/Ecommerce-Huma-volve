@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
 import '../../home/domain/entites/products_entity.dart';
@@ -28,6 +29,31 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void initState() {
     super.initState();
   }
+
+
+  Future<void> _shareProduct() async {
+    final product = widget.productsModel;
+
+    final productLink = 'huma-vole://product/${product.id}';
+
+    final shareText = '''
+Check out this product!
+
+${product.title}
+Price: \$${product.price}
+
+Open product:
+$productLink
+''';
+
+    await SharePlus.instance.share(
+      ShareParams(
+        text: shareText,
+        title: product.title,
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +90,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
+              IconButton(
+                onPressed: _shareProduct,
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.share,
+                    size: 18,
+                  ),
+                ),
+                tooltip: 'Share product',
+              ),
               IconButton(
                 icon: Container(
                   padding: const EdgeInsets.all(8),

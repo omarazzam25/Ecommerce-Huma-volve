@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../features/home/data/repository/home_repository.dart';
+import '../features/home/domain/use_cases/get_product_by_id_use_case.dart';
 import '../features/home/presentation/home_cubit/home_cubit.dart';
 import 'network/api_clint.dart';
 
@@ -61,4 +62,11 @@ void setupDependencies() {
       getIt<GetProductsByCategoryUseCase>(),
     ),
   );
+
+  getIt.registerLazySingleton(
+        () => GetProductByIdUseCase(
+      repository: getIt<HomeRepository>(),
+    ),
+  );
+
 }

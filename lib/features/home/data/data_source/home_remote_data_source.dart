@@ -22,6 +22,8 @@ abstract class HomeRemoteDataSource {
     required int offset,});
 
   Future<List<CategoryModel>> getCategories();
+
+  Future<ProductsModel> getProductById(int productId);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -91,4 +93,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         .map((json) => CategoryModel.fromJson(json))
         .toList();
   }
+
+  @override
+  Future<ProductsModel> getProductById(int productId) async {
+    final response = await apiClint.dio.get(
+      'products/$productId',
+    );
+
+    return ProductsModel.fromJson(response.data);
+  }
+
 }
