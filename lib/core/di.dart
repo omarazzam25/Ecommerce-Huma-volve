@@ -36,7 +36,7 @@ void setupDependencies() {
 
   getIt.registerLazySingleton<GetProductsUseCase>(
         () => GetProductsUseCase(
-          homeRepository: getIt<HomeRepository>(),
+          repository: getIt<HomeRepository>(),
     ),
   );
 
@@ -48,7 +48,7 @@ void setupDependencies() {
 
   getIt.registerLazySingleton<GetProductsByCategoryUseCase>(
         () => GetProductsByCategoryUseCase(
-          homeRepository: getIt<HomeRepository>(),
+          repository: getIt<HomeRepository>(),
     ),
   );
 

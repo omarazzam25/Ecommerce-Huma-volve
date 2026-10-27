@@ -5,11 +5,19 @@ import '../entites/products_entity.dart';
 import '../repository/home_repository.dart';
 
 class GetProductsUseCase {
-  final HomeRepository homeRepository;
+  final HomeRepository repository;
 
-  GetProductsUseCase({required this.homeRepository});
+  GetProductsUseCase({
+    required this.repository,
+  });
 
-  Future<Either<Failures, List<ProductsEntity>>> call() {
-    return homeRepository.getProducts();
+  Future<Either<Failures, List<ProductsEntity>>> call({
+    required int limit,
+    required int offset,
+  }) {
+    return repository.getProducts(
+      limit: limit,
+      offset: offset,
+    );
   }
 }

@@ -21,13 +21,23 @@ class HomeCubit extends Cubit<HomeState> {
     required this.getProductsByCategoryUseCase,
   }) : super(HomeInitial());
 
+  static const int pageSize = 10;
+
+  int currentOffset = 0;
+  bool hasMore = true;
+  bool isLoadingMore = false;
+
+  int? selectedCategoryId;
+
   List<ProductsEntity> products = [];
   List<CategoryEntity> categories = [];
 
   Future<void> getProducts() async {
     emit(ProductsLoadingState());
 
-    final result = await getProductsUseCase.call();
+    final result = await getProductsUseCase.call(
+      limit: pageSize,
+      offset: 0,);
 
     result.fold(
           (failure) {
@@ -36,6 +46,9 @@ class HomeCubit extends Cubit<HomeState> {
       },
           (productsList) {
         products = productsList;
+
+        currentOffset = productsList.length;
+        hasMore = productsList.length == pageSize;
         emit(ProductsSuccessState());
       },
     );
@@ -44,7 +57,9 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> getProductsByCategory(int categoryId) async {
     emit(ProductsLoadingState());
 
-    final result = await getProductsByCategoryUseCase.call(categoryId);
+    final result = await getProductsByCategoryUseCase.call(categoryId,
+      limit: pageSize,
+      offset: 0,);
 
     result.fold(
           (failure) {
@@ -74,4 +89,45 @@ class HomeCubit extends Cubit<HomeState> {
       },
     );
   }
+
+  Future<void> loadMoreProducts() async {
+    if (isLoadingMore || !hasMore) return;
+
+    isLoadingMore = true;
+
+    try {
+      final result = selectedCategoryId == null
+          ? await getProductsUseCase.call(
+        limit: pageSize,
+        offset: currentOffset,
+      )
+          : await getProductsByCategoryUseCase.call(
+        selectedCategoryId!,
+        limit: pageSize,
+        offset: currentOffset,
+      );
+
+      result.fold(
+            (failure) {
+          debugPrint(failure.errMessage);
+        },
+            (newProducts) {
+          products.addAll(newProducts);
+
+          currentOffset += newProducts.length;
+
+          if (newProducts.length < pageSize) {
+            hasMore = false;
+          }
+
+          emit(ProductsSuccessState());
+        },
+      );
+    } catch (e) {
+      debugPrint('Load more products error: $e');
+    } finally {
+      isLoadingMore = false;
+    }
+  }
+
 }

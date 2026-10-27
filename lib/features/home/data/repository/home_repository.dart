@@ -13,46 +13,47 @@ class HomeRepositoryImpl implements HomeRepository {
   HomeRepositoryImpl({
     required this.remoteDataSource,
   });
-
   @override
-  Future<Either<Failures, List<ProductsEntity>>> getProducts() async {
+  Future<Either<Failures, List<ProductsEntity>>> getProducts({
+    required int limit,
+    required int offset,
+  }) async {
     try {
-      final products = await remoteDataSource.getProducts();
+      final products = await remoteDataSource.getProducts(
+        limit: limit,
+        offset: offset,
+      );
 
-      final productsEntities = products
-          .map((product) => product.toEntity())
-          .toList();
-
-      return Right(productsEntities);
+      return Right(
+        products.map((product) => product.toEntity()).toList(),
+      );
     } on DioException catch (error) {
       return Left(ServerFailure.fromDioError(error));
     } catch (error) {
-      return Left(
-        ServerFailure('Unexpected error: $error'),
-      );
+      return Left(ServerFailure('Unexpected error: $error'));
     }
   }
 
   @override
   Future<Either<Failures, List<ProductsEntity>>> getProductsByCategory(
-      int categoryId,
-      ) async {
+      int categoryId, {
+        required int limit,
+        required int offset,
+      }) async {
     try {
       final products = await remoteDataSource.getProductsByCategory(
         categoryId,
+        limit: limit,
+        offset: offset,
       );
 
-      final productsEntities = products
-          .map((product) => product.toEntity())
-          .toList();
-
-      return Right(productsEntities);
+      return Right(
+        products.map((product) => product.toEntity()).toList(),
+      );
     } on DioException catch (error) {
       return Left(ServerFailure.fromDioError(error));
     } catch (error) {
-      return Left(
-        ServerFailure('Unexpected error: $error'),
-      );
+      return Left(ServerFailure('Unexpected error: $error'));
     }
   }
 
